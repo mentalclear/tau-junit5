@@ -7,7 +7,7 @@ import org.junit.jupiter.api.*;
 public class FirstTestClass {
 
     @BeforeAll
-    public void beforAll(){
+    public void beforeAll(){
         System.out.println("--This is the before All method");
     }
 
@@ -32,7 +32,7 @@ public class FirstTestClass {
     }
 
     @Test
-    @DisplayName("US01 - TC1 - Second Test Method")
+    @DisplayName("US01 - TC1 - Second Test Method")  // Test name changes in the Run by this
     public void secondMethod() {
         System.out.println("This is the second test method");
     }
