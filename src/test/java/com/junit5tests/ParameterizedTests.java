@@ -1,11 +1,15 @@
 package com.junit5tests;
 
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.*;
 
-public class ParameterizedTests {
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
+
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class ParameterizedTests implements ParamsInterface {
 
     // Chapter 4
 
@@ -73,4 +77,104 @@ public class ParameterizedTests {
     // Ideas - some simple test can be written using those parameters in CSV,
     // but most likely CSV file would be much more interesting to use.
 
+    // Chapter 6
+
+    @ParameterizedTest
+    @CsvFileSource(files = "src/test/resources/params/shoppinglist.csv",
+            numLinesToSkip = 1) // The first line in .csv is a header, this is to skip that line
+    public void csvFileSource_StringDoubleIntStringString(String name,
+                                                          double price, int qty, String uom,
+                                                          String provider){
+        System.out.println("name = " + name + ", price = " + price + ", qty = " + qty
+                + ", uom = " + uom + ", provider = " + provider);
+    }
+
+    // Multiple .csv can be supplied to the test
+    @ParameterizedTest
+    @CsvFileSource(files = {"src/test/resources/params/shoppinglist.csv",
+            "src/test/resources/params/shoppinglist2.csv"},
+            numLinesToSkip = 1) // The first line in .csv is a header, this is to skip that line
+    public void csvFileSource_StringDoubleIntStringString2(String name,
+                                                          double price, int qty, String uom,
+                                                          String provider){
+        System.out.println("name = " + name + ", price = " + price + ", qty = " + qty
+                + ", uom = " + uom + ", provider = " + provider);
+    }
+
+    // Using different delimiter in the .csv
+    @ParameterizedTest
+    @CsvFileSource(files = "src/test/resources/params/shoppinglist3.csv",
+            numLinesToSkip = 1, delimiterString = "___") // Delimiter string in this case.
+    public void csvFileSource_StringDoubleIntStringString3(String name,
+                                                           double price, int qty, String uom,
+                                                           String provider){
+        System.out.println("name = " + name + ", price = " + price + ", qty = " + qty
+                + ", uom = " + uom + ", provider = " + provider);
+    }
+    // Important note. If I need an empty string - in the .csv it should be provided
+    // as empty quotes see shoppinglist3.csv line 2 for example.
+    // For null value the value shouldn't be provided at all see shoppinglist3.csv line 3
+
+    // Chapter 7 - @MethodSource annotation
+
+    @ParameterizedTest
+    @MethodSource(value = "sourceString") // Method should return Stream compatible
+    public void methSource_String(String param1){
+        System.out.println("param1 = " + param1);
+    }
+
+    // This is a method that will be used in the test, by default it should be static
+    // but with class annotation @TestInstance that can be avoided
+    public List<String> sourceString() {
+        // Processing is done here
+        return Arrays.asList("tomato", "carrot", "cabbage");
+    }
+
+    public Stream<String> sourceStringAsStream() {
+        // Processing is done here
+        return Stream.of("beetroot", "apple", "grape");
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = "sourceStringAsStream") // Stream example
+    public void methSource_StringFromStream(String param1){
+        System.out.println("param1 = " + param1);
+    }
+
+    // Custom arguments provider method with a List
+    public List<Arguments> source_StringDouble() {
+        //Processing done here
+        return Arrays.asList(Arguments.arguments("tomato", 2.0),
+                Arguments.arguments("carrot", 4.5),
+                Arguments.arguments("cabbage", 7.8));
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = "source_StringDouble") // Method with custom arguments supplied
+    public void methSource_StringDouble(String param1, double param2){
+        System.out.println("param1 = " + param1 + ", param2 = " + param2);
+    }
+
+    // Custom arguments provider method with a Stream
+    public Stream<Arguments> sourceStream_StringDouble() {
+        //Processing done here
+        return Stream.of(Arguments.arguments("peach", 2.5),
+                Arguments.arguments("plum", 7.5),
+                Arguments.arguments("banana", 3.8));
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = "sourceStream_StringDouble") // Method with custom arguments supplied
+    public void methSourceStream_StringDouble(String param1, double param2){
+        System.out.println("param1 = " + param1 + ", param2 = " + param2);
+    }
+
+    // Using provider Methods from a separate class
+    // See ParamsProvider class as a source of the method
+    @ParameterizedTest
+    // This is the way how to point to a method from another class use pound character
+    @MethodSource(value = "com.junit5tests.ParamsProvider#sourceClassStream_StringDouble")
+    public void methodFromClassSourceStream_StringDouble(String param1, double param2){
+        System.out.println("param1 = " + param1 + ", param2 = " + param2);
+    }
 }
