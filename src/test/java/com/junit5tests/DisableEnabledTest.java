@@ -1,14 +1,16 @@
 package com.junit5tests;
 
+import com.listeners.Listener;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 
 // Chapter 10 - Disabling test
-
+@ExtendWith(Listener.class)  // Added in Chapter 16 - TestWatcher
 public class DisableEnabledTest {
 
     @Test
